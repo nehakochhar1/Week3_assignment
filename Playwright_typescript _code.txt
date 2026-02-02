@@ -1,0 +1,124 @@
+Feature: Login
+
+  Scenario Outline: Successful login
+    Given I open the login page
+    When I type "<username>" into the work email field
+    And I type "<password>" into the Password field
+    And I click the Continue button
+    Then I should be logged in successfully
+
+  Examples:
+    | username                  | password |
+    | testuser@seetalent.com    | Test@123 |
+    | testuser1@seetalent.com   | Test@123 |
+    | testuser2@seetalent.com   | Test@123 |
+
+  Scenario Outline: Invalid username
+    Given I open the login page
+    When I type "<username>" into the work email field
+    And I type "Test@123" into the Password field
+    And I click the Continue button
+    Then I should see an error message for invalid username
+
+  Examples:
+    | username                  |
+    | invaliduser@seetalent.com  |
+    | invaliduser1@seetalent.com |
+    | invaliduser2@seetalent.com |
+
+  Scenario Outline: Invalid password
+    Given I open the login page
+    When I type "testuser@seetalent.com" into the work email field
+    And I type "<password>" into the Password field
+    And I click the Continue button
+    Then I should see an error message for invalid password
+
+  Examples:
+    | password |
+    | wrongpassword |
+    | wrongpassword1 |
+    | wrongpassword2 |
+
+  Scenario Outline: Empty username
+    Given I open the login page
+    When I type "<username>" into the work email field
+    And I type "Test@123" into the Password field
+    And I click the Continue button
+    Then I should see an error message for empty username
+
+  Examples:
+    | username |
+    |          |
+    |          |
+    |          |
+
+  Scenario Outline: Empty password
+    Given I open the login page
+    When I type "testuser@seetalent.com" into the work email field
+    And I type "<password>" into the Password field
+    And I click the Continue button
+    Then I should see an error message for empty password
+
+  Examples:
+    | password |
+    |          |
+    |          |
+    |          |
+
+import { Given, When, Then, Before, After } from '@cucumber/cucumber';
+import { chromium, type Browser, type Page } from 'playwright';
+import { expect } from '@playwright/test';
+
+let browser: Browser;
+let page: Page;
+
+Before(async () => {
+  browser = await chromium.launch({ headless: true });
+  const context = await browser.newContext();
+  page = await context.newPage();
+});
+
+After(async () => {
+  await browser?.close();
+});
+
+Given('I open the login page', async () => {
+  await page.goto('https://qa.seetalent.studiographene.xyz/login');
+});
+
+When('I type {string} into the work email field', async (username: string) => {
+  await page.locator('#work-email-input').fill(username);
+});
+
+When('I type {string} into the Password field', async (password: string) => {
+  await page.locator('#input-_R_hbsnlb_').fill(password);
+});
+
+When('I click the Continue button', async () => {
+  await page.locator('button:has-text("Continue")').click();
+});
+
+Then('I should be logged in successfully', async () => {
+  // Add logic to verify successful login
+  await expect(page.locator('text="Login Successful"')).toBeVisible();
+});
+
+Then('I should see an error message for invalid username', async () => {
+  // Add logic to verify error message for invalid username
+  await expect(page.locator('text="Invalid username"')).toBeVisible();
+});
+
+Then('I should see an error message for invalid password', async () => {
+  // Add logic to verify error message for invalid password
+  await expect(page.locator('text="Invalid password"')).toBeVisible();
+});
+
+Then('I should see an error message for empty username', async () => {
+  // Add logic to verify error message for empty username
+  await expect(page.locator('text="Username is required"')).toBeVisible();
+});
+
+Then('I should see an error message for empty password', async () => {
+  // Add logic to verify error message for empty password
+  await expect(page.locator('text="Password is required"')).toBeVisible();
+});
